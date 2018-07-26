@@ -115,15 +115,20 @@ FILES_TO_UPLOAD=(
     'minikube-darwin-amd64'
     'minikube-darwin-amd64.sha256'
     'minikube-windows-amd64'
+    'minikube-windows-amd64.sha256'
     'minikube-installer.exe'
     "minikube_${DEB_VERSION}.deb"
     'docker-machine-driver-kvm2'
     'docker-machine-driver-hyperkit'
-    'localkube'
-    'localkube.sha256'
 )
 
 for UPLOAD in "${FILES_TO_UPLOAD[@]}"
 do
-    github-release upload --user ${GITHUB_ORGANIZATION} --repo ${GITHUB_REPO} --tag ${TAGNAME} --name $UPLOAD --file out/$UPLOAD
+    n=0
+    until [ $n -ge 5 ]
+    do
+        github-release upload --user ${GITHUB_ORGANIZATION} --repo ${GITHUB_REPO} --tag ${TAGNAME} --name $UPLOAD --file out/$UPLOAD && break
+        n=$[$n+1]
+        sleep 15
+    done
 done
