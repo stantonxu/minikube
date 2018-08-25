@@ -27,23 +27,47 @@ brew cask install minikube
 
 ### Linux
 ```shell
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
 ```
 
 ### Windows
 
-Install with [Chocolatey](https://chocolatey.org/):
+Hyper-V needs to be enabled. For Windows 10 this can only run on these versions:
+
+* Windows 10 Enterprise
+* Windows 10 Professional
+* Windows 10 Education
+
+#### Install with [Chocolatey](https://chocolatey.org/) (recommended):
+These commands must be run as administrator. To do this, open the Windows command line by typing 'cmd' in your start menu, right clicking it and choosing 'Run as administrator'.
 ```shell
 choco install minikube
 ```
-Install manually: Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file, rename it to `minikube.exe` and add it to your path.
+```shell
+choco install kubernetes-cli
+```
+ After it finished installing, close the current command line and restart. Minikube was added to your path automatically.
+
+ To start the minikube cluster, make sure you also have administrator rights.
+
+```shell
+minikube start
+ ```
+
+ You might have to specify the vm driver.
+ ```shell
+minikube start --vm-driver hyperv
+ ```
+
+#### Install manually
+Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file, rename it to `minikube.exe` and add it to your path.
 
 
 ### Linux Continuous Integration without VM Support
 Example with kubectl installation:
 ```shell
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
-curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
+curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo cp kubectl /usr/local/bin/ && rm kubectl
 
 export MINIKUBE_WANTUPDATENOTIFICATION=false
 export MINIKUBE_WANTREPORTERRORPROMPT=false
@@ -53,11 +77,11 @@ mkdir -p $HOME/.kube
 touch $HOME/.kube/config
 
 export KUBECONFIG=$HOME/.kube/config
-sudo -E ./minikube start --vm-driver=none
+sudo -E minikube start --vm-driver=none
 
 # this for loop waits until kubectl can access the api server that Minikube has created
 for i in {1..150}; do # timeout for 5 minutes
-   ./kubectl get po &> /dev/null
+   kubectl get po &> /dev/null
    if [ $? -ne 1 ]; then
       break
   fi
